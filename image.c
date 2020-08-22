@@ -557,28 +557,46 @@ bool img_zoom(img_t *img, float z)
 
 bool img_zoom_in(img_t *img)
 {
-	int i;
-	float z;
-
-	for (i = 0; i < ARRLEN(zoom_levels); i++) {
-		z = zoom_levels[i] / 100.0;
-		if (zoomdiff(img, z) > 0)
-			return img_zoom(img, z);
+	float z = img->zoom;
+	float v = VEL_INIT;
+	bool res = false;
+	const struct timespec ten_ms = {0, 10000000};
+	while (v > VEL_MIN) {
+		z += z * v;
+		v -= v * VEL_FRICTION;
+		if (zoomdiff(img, z) > 0) {
+			res = img_zoom(img, z);
+			// Stop zooming if cannot zoom
+			if (!res) {
+			  return res;
+			}
+			redraw(); // force redraw
+		}
+		nanosleep(&ten_ms, NULL);
 	}
-	return false;
+	return res;
 }
 
 bool img_zoom_out(img_t *img)
 {
-	int i;
-	float z;
-
-	for (i = ARRLEN(zoom_levels) - 1; i >= 0; i--) {
-		z = zoom_levels[i] / 100.0;
-		if (zoomdiff(img, z) < 0)
-			return img_zoom(img, z);
+	float z = img->zoom;
+	float v = VEL_INIT;
+	bool res = false;
+	const struct timespec ten_ms = {0, 10000000};
+	while (v > VEL_MIN) {
+		z -= z * v;
+		v -= v * VEL_FRICTION;
+		if (zoomdiff(img, z) < 0) {
+			res = img_zoom(img, z);
+			// Stop zooming if cannot zoom
+			if (!res) {
+			  return res;
+			}
+			redraw(); // force redraw
+		}
+		nanosleep(&ten_ms, NULL);
 	}
-	return false;
+	return res;
 }
 
 bool img_pos(img_t *img, float x, float y)
