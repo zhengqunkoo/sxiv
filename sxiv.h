@@ -286,6 +286,7 @@ struct opt {
 	/* misc flags: */
 	bool quiet;
 	bool thumb_mode;
+	bool exitLt100Zoom;
 	bool clean_cache;
 	bool private_mode;
 };

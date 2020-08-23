@@ -561,6 +561,10 @@ void *img_zoom_in_out(void *img) {
 	const struct timespec timespec_zoom = {0, 5000000};
 	while ((velocity<0 ? -velocity : velocity) > VEL_MIN) {
 		z += z * velocity;
+		// Exit if less than 100% zoom
+		if (options->exitLt100Zoom && z < 1) {
+			exit(0);
+		}
 		velocity -= velocity * VEL_FRICTION;
 		// Stop zooming if cannot zoom
 		if (!img_zoom(img, z)) {

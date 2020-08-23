@@ -69,10 +69,11 @@ void parse_options(int argc, char **argv)
 
 	_options.quiet = false;
 	_options.thumb_mode = false;
+	_options.exitLt100Zoom = false;
 	_options.clean_cache = false;
 	_options.private_mode = false;
 
-	while ((opt = getopt(argc, argv, "A:abce:fG:g:hin:N:opqrS:s:tvZz:")) != -1) {
+	while ((opt = getopt(argc, argv, "A:abce:fG:g:hin:N:opqrS:s:tvxZz:")) != -1) {
 		switch (opt) {
 			case '?':
 				print_usage();
@@ -155,6 +156,9 @@ void parse_options(int argc, char **argv)
 			case 'v':
 				print_version();
 				exit(EXIT_SUCCESS);
+			case 'x':
+				_options.exitLt100Zoom = true;
+				break;
 			case 'Z':
 				_options.scalemode = SCALE_ZOOM;
 				_options.zoom = 1.0;
