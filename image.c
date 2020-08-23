@@ -555,48 +555,47 @@ bool img_zoom(img_t *img, float z)
 	}
 }
 
+static float velocity = 0;
+void *img_zoom_in_out(void *img) {
+	float z = ((img_t *)img)->zoom;
+	const struct timespec timespec_zoom = {0, 5000000};
+	while ((velocity<0 ? -velocity : velocity) > VEL_MIN) {
+		z += z * velocity;
+		velocity -= velocity * VEL_FRICTION;
+		// Stop zooming if cannot zoom
+		if (!img_zoom(img, z)) {
+			pthread_mutex_unlock(&mtx_zoom);
+			return NULL;
+		}
+		nanosleep(&timespec_zoom, NULL);
+		redraw();
+	}
+	pthread_mutex_unlock(&mtx_zoom);
+	return NULL;
+}
+
 bool img_zoom_in(img_t *img)
 {
-	float z = img->zoom;
-	float v = VEL_INIT;
-	bool res = false;
-	const struct timespec ten_ms = {0, 10000000};
-	while (v > VEL_MIN) {
-		z += z * v;
-		v -= v * VEL_FRICTION;
-		if (zoomdiff(img, z) > 0) {
-			res = img_zoom(img, z);
-			// Stop zooming if cannot zoom
-			if (!res) {
-			  return res;
-			}
-			redraw(); // force redraw
-		}
-		nanosleep(&ten_ms, NULL);
+	pthread_t tid;
+	if (pthread_mutex_trylock(&mtx_zoom) == 0) {
+		velocity = VEL_INIT;
+		pthread_create(&tid, NULL, img_zoom_in_out, img);
+	} else {
+		velocity = 2*VEL_INIT;
 	}
-	return res;
+	return false;
 }
 
 bool img_zoom_out(img_t *img)
 {
-	float z = img->zoom;
-	float v = VEL_INIT;
-	bool res = false;
-	const struct timespec ten_ms = {0, 10000000};
-	while (v > VEL_MIN) {
-		z -= z * v;
-		v -= v * VEL_FRICTION;
-		if (zoomdiff(img, z) < 0) {
-			res = img_zoom(img, z);
-			// Stop zooming if cannot zoom
-			if (!res) {
-			  return res;
-			}
-			redraw(); // force redraw
-		}
-		nanosleep(&ten_ms, NULL);
+	pthread_t tid;
+	if (pthread_mutex_trylock(&mtx_zoom) == 0) {
+		velocity = - VEL_INIT;
+		pthread_create(&tid, NULL, img_zoom_in_out, img);
+	} else {
+		velocity = - 2*VEL_INIT;
 	}
-	return res;
+	return false;
 }
 
 bool img_pos(img_t *img, float x, float y)

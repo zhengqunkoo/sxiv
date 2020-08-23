@@ -817,6 +817,7 @@ void setup_signal(int sig, void (*handler)(int sig))
 		error(EXIT_FAILURE, errno, "signal %d", sig);
 }
 
+pthread_mutex_t mtx_zoom;
 int main(int argc, char **argv)
 {
 	int i, start;
@@ -826,6 +827,8 @@ int main(int argc, char **argv)
 	const char *homedir, *dsuffix = "";
 	struct stat fstats;
 	r_dir_t dir;
+	pthread_mutex_init(&mtx_zoom, 0);
+	XInitThreads();
 
 	setup_signal(SIGCHLD, sigchld);
 	setup_signal(SIGPIPE, SIG_IGN);
@@ -947,5 +950,6 @@ int main(int argc, char **argv)
 
 	run();
 
+	pthread_mutex_destroy(&mtx_zoom);
 	return 0;
 }

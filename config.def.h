@@ -19,7 +19,7 @@ enum {
  */
 static const float VEL_INIT = 0.05;
 static const float VEL_MIN = 0.01;
-static const float VEL_FRICTION = 0.1;
+static const float VEL_FRICTION = 0.15;
 static const float zoom_levels[] = {
 	 12.5,  25.0,  50.0,  75.0,
 	100.0, 150.0, 200.0, 400.0, 800.0

@@ -19,6 +19,7 @@
 #ifndef SXIV_H
 #define SXIV_H
 
+#include <pthread.h>
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -190,6 +191,8 @@ extern const cmd_t cmds[CMD_COUNT];
 
 
 /* image.c */
+extern void redraw(void);
+extern pthread_mutex_t mtx_zoom;
 
 typedef struct {
 	Imlib_Image im;
